@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Autoexperten</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-size: 48px;
+    margin: 0;
+  }
+  header h1 span.red { color: red; }
+  header h1 span.blue { color: blue; }
+
+  /* Layout */
+  .panel {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 0 10px #aaa;
+  }
+  #leftPanel {
+    flex: 1 1 320px;
+    max-width: 400px;
+    min-width: 320px;
+  }
+  #rightPanel {
+    flex: 1 1 320px;
+    max-width: 400px;
+    min-width: 320px;
+  }
+  #middlePanel {
+    flex: 2 1 600px;
+    max-width: 700px;
+    min-width: 600px;
+  }
+
+  /* Titles */
+  .panel h2 {
+    margin-top: 0;
+    font-size: 24px;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+  }
+
+  /* Buttons */
+  button {
+    font-size: 16px;
+    padding: 10px;
+    margin: 5px 0;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+  }
+  button.part-button {
+    width: 100%;
+    text-align: left;
+    background: #eee;
+    transition: background-color 0.2s;
+  }
+  button.part-button.selected {
+    background: lightgray;
+  }
+  button#clearOrder {
+    background: gray;
+    color: white;
+    width: 100%;
+  }
+  button#doOrder {
+    background: green;
+    color: white;
+    width: 100%;
+  }
+  button#btnInService, button#btnOutService {
+    width: 48%;
+    background: #2196f3;
+    color: white;
+  }
+  button#btnOutService {
+    background: #f44336;
+  }
+  button.sf-button {
+    width: 100%;
+    background: #ddd;
+  }
+  button.sf-button.selected {
+    background: #a0d468;
+  }
+  button#copySummary {
+    background: #444;
+    color: white;
+    width: 100%;
+  }
+  button#exitApp {
+    background: gray;
+    color: white;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+  }
+
+  /* Lists */
+  ul#selectedParts {
+    list-style-type: none;
+    padding-left: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  ul#selectedParts li {
+    padding: 5px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+  }
+
+  /* Inputs */
+  input[type=number] {
+    font-size: 16px;
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+
+  /* Summary textarea */
+  textarea#summaryBox {
+    width: 100%;
+    height: 150px;
+    font-size: 16px;
+    resize: none;
+    margin-top: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  /* Sections for parts */
+  .part-category {
+    margin-bottom: 20px;
+  }
+  .part-category h3 {
+    margin-bottom: 8px;
+  }
+
+  /* Order count */
+  #orderCount {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="red">Auto</span><span class="blue">experten</span></h1>
+</header>
+
+<div id="orderCount">Antal ordrar: 0</div>
+
+<div id="leftPanel" class="panel">
+  <h2>Priser & Rabatt</h2>
+  <div id="priceCustomer">Pris till kund: 0 kr</div>
+  <div id="priceOriginal">Orginal pris: 0 kr</div>
+  <div id="pricePurchase">Inköp pris: 0 kr</div>
+
+  <label for="discountInput">Total rabatt (%):</label>
+  <input type="number" id="discountInput" min="0" max="100" value="0" />
+
+  <h2>Valda delar</h2>
+  <ul id="selectedParts"></ul>
+
+  <button id="clearOrder">Rensa ordern</button>
+  <button id="doOrder">Gör order</button>
+</div>
+
+<div id="middlePanel" class="panel">
+  <h2>Delar att välja</h2>
+
+  <div id="partsContainer">
+    <!-- Kategorier och knappar läggs in här av JS -->
+  </div>
+</div>
+
+<div id="rightPanel" class="panel">
+  <h2>Tjänst & Sammanfattning</h2>
+
+  <div>
+    <button id="btnInService">I tjänst</button>
+    <button id="btnOutService">Ur tjänst</button>
+  </div>
+  <div id="timeInfo" style="margin-top: 10px; font-size: 16px;">
+    <div id="labelInService">I tjänst: -</div>
+    <div id="labelOutService">Ur tjänst: -</div>
+    <div id="labelDuration">Tid: -</div>
+  </div>
+
+  <h3>SF - Sammanfattning</h3>
+  <div id="sfButtons">
+    <!-- SF-knappar -->
+  </div>
+
+  <textarea id="summaryBox" readonly placeholder="Sammanfattning visas här..."></textarea>
+  <button id="copySummary">Kopiera sammanfattning</button>
+</div>
+
+<button id="exitApp">Avsluta</button>
+
+<script>
+  // Data: delar som i Python-koden
+  const delar = {
+    "Turbo": [65000, 35000, "Delar"],
+    "Bromsar": [50000, 25000, "Delar"],
+    "Drivlina": [80000, 50000, "Delar"],
+    "Däck": [50000, 25000, "Delar"],
+    "Drift": [65000, 25000, "Delar"],
+    "Steg 3": [300000, 10000, "Trimkit"],
+    "Steg 2": [200000, 10000, "Trimkit"],
+    "Steg 1": [100000, 10000, "Trimkit"],
+    "V12": [160000, 10000, "Motorer"],
+    "V6": [100000, 10000, "Motorer"],
+    "V8": [130000, 10000, "Motorer"],
+  };
+
+  let valdaDelar = [];
+  let antalOrdrar = 0;
+  let startTid = null;
+  let slutTid = null;
+  let sfVal = [];
+
+  // Skapa knappar för delar kategorivis
+  const partsContainer = document.getElementById("partsContainer");
+  const categories = ["Delar", "Trimkit", "Motorer"];
+
+  function getButtonText(name) {
+    let [pris, inkop, _] = delar[name];
+    return `${name} - ${pris} kr (Inköp: ${inkop} kr)`;
+  }
+
+  function createPartButtons() {
+    partsContainer.innerHTML = "";
+    categories.forEach(cat => {
+      const div = document.createElement("div");
+      div.className = "part-category";
+      const h3 = document.createElement("h3");
+      h3.textContent = cat;
+      div.appendChild(h3);
+
+      // Filtrera delar i kategorin och skapa knappar
+      Object.entries(delar).filter(([n, v]) => v[2] === cat).forEach(([namn, vals]) => {
+        const btn = document.createElement("button");
+        btn.textContent = getButtonText(namn);
+        btn.className = "part-button";
+        btn.onclick = () => toggleDel(namn, btn);
+        div.appendChild(btn);
+      });
+
+      partsContainer.appendChild(div);
+    });
+  }
+
+  function toggleDel(name, btn) {
+    const kategori = delar[name][2];
+    if (valdaDelar.includes(name)) {
+      // Ta bort
+      valdaDelar = valdaDelar.filter(d => d !== name);
+      btn.classList.remove("selected");
+      btn.textContent = getButtonText(name);
+    } else {
+      // Om Trimkit eller Motorer redan finns vald, ersätt (som i Python)
+      if (kategori === "Trimkit") {
+        // Ta bort andra trimkit
+        valdaDelar = valdaDelar.filter(d => delar[d][2] !== "Trimkit");
+        // Avmarkera andra trimknappar
+        markeraTrim(false);
+      } else if (kategori === "Motorer") {
+        valdaDelar = valdaDelar.filter(d => delar[d][2] !== "Motorer");
+        markeraMotor(false);
+      }
+      valdaDelar.push(name);
+      btn.classList.add("selected");
+      btn.textContent = "✅ " + getButtonText(name);
+    }
+    updateSelectedList();
+    räknaPris();
+  }
+
+  function markeraTrim(selected) {
+    const buttons = partsContainer.querySelectorAll(".part-category:nth-child(2) button");
+    buttons.forEach(b => {
+      if (selected) b.classList.add("selected");
+      else b.classList.remove("selected");
+      b.textContent = b.textContent.replace("✅ ", "");
+    });
+  }
+  function markeraMotor(selected) {
+    const buttons = partsContainer.querySelectorAll(".part-category:nth-child(3) button");
+    buttons.forEach(b => {
+      if (selected) b.classList.add("selected");
+      else b.classList.remove("selected");
+      b.textContent = b.textContent.replace("✅ ", "");
+    });
+  }
+
+  // Visa valda delar i listan
+  function updateSelectedList() {
+    const list = document.getElementById("selectedParts");
+    list.innerHTML = "";
+    valdaDelar.forEach(name => {
+      const li = document.createElement("li");
+      li.textContent = name + " - " + delar[name][0] + " kr";
+      list.appendChild(li);
+    });
+  }
+
+  // Räkna priser och visa
+  function räknaPris() {
+    let prisKund = 0;
+    let prisOrginal = 0;
+    let prisInkop = 0;
+    valdaDelar.forEach(name => {
+      const [pris, inkop] = delar[name];
+      prisKund += pris;
+      prisOrginal += pris;
+      prisInkop += inkop;
+    });
+    // Rabatt från input
+    const rabatt = Number(document.getElementById("discountInput").value) || 0;
+    if (rabatt > 0) {
+      prisKund = prisKund * (1 - rabatt / 100);
+    }
+    document.getElementById("priceCustomer").textContent = "Pris till kund: " + Math.round(prisKund) + " kr";
+    document.getElementById("priceOriginal").textContent = "Orginal pris: " + Math.round(prisOrginal) + " kr";
+    document.getElementById("pricePurchase").textContent = "Inköp pris: " + Math.round(prisInkop) + " kr";
+  }
+
+  // Rabatt input event
+  document.getElementById("discountInput").addEventListener("input", () => {
+    räknaPris();
+  });
+
+  // Rensa order
+  document.getElementById("clearOrder").addEventListener("click", () => {
+    valdaDelar = [];
+    updateSelectedList();
+    räknaPris();
+    // Avmarkera alla knappar
+    document.querySelectorAll(".part-button").forEach(b => {
+      b.classList.remove("selected");
+      b.textContent = b.textContent.replace("✅ ", "");
+    });
+    sfVal = [];
+    updateSFButtons();
+    updateSummary();
+  });
+
+  // Gör order (räkna antal ordrar)
+  document.getElementById("doOrder").addEventListener("click", () => {
+    antalOrdrar++;
+    document.getElementById("orderCount").textContent = "Antal ordrar: " + antalOrdrar;
+  });
+
+  // Tjänst / Ur tjänst knappfunktion
+  const btnInService = document.getElementById("btnInService");
+  const btnOutService = document.getElementById("btnOutService");
+  const labelInService = document.getElementById("labelInService");
+  const labelOutService = document.getElementById("labelOutService");
+  const labelDuration = document.getElementById("labelDuration");
+
+  btnInService.addEventListener("click", () => {
+    startTid = new Date();
+    slutTid = null;
+    labelInService.textContent = "I tjänst: " + startTid.toLocaleTimeString();
+    labelOutService.textContent = "Ur tjänst: -";
+    labelDuration.textContent = "Tid: -";
+  });
+
+  btnOutService.addEventListener("click", () => {
+    if (!startTid) {
+      alert("Starttid är inte satt. Tryck på 'I tjänst' först.");
+      return;
+    }
+    slutTid = new Date();
+    labelOutService.textContent = "Ur tjänst: " + slutTid.toLocaleTimeString();
+
+    const diffMs = slutTid - startTid;
+    const diffMin = Math.floor(diffMs / 60000);
+    const h = Math.floor(diffMin / 60);
+    const m = diffMin % 60;
+    labelDuration.textContent = `Tid: ${h}h ${m}m`;
+
+    startTid = null;
+  });
+
+  // SF-knappar
+  const sfButtonsData = ["Trimmat", "Tagit intervju", "Fyllt på hyllor"];
+  const sfButtonsDiv = document.getElementById("sfButtons");
+
+  function updateSFButtons() {
+    sfButtonsDiv.innerHTML = "";
+    sfButtonsData.forEach(text => {
+      const btn = document.createElement("button");
+      btn.textContent = text;
+      btn.className = "sf-button";
+      if (sfVal.includes(text)) {
+        btn.classList.add("selected");
+      }
+      btn.onclick = () => {
+        if (sfVal.includes(text)) {
+          sfVal = sfVal.filter(t => t !== text);
+        } else {
+          sfVal.push(text);
+        }
+        updateSFButtons();
+        updateSummary();
+      };
+      sfButtonsDiv.appendChild(btn);
+    });
+  }
+
+  // Sammanfattning
+  const summaryBox = document.getElementById("summaryBox");
+
+  function updateSummary() {
+    let text = "";
+    if (valdaDelar.length > 0) {
+      text += "Valda delar:\n";
+      valdaDelar.forEach(d => {
+        text += "- " + d + "\n";
+      });
+      text += "\n";
+    }
+    if (sfVal.length > 0) {
+      text += "SF:\n";
+      sfVal.forEach(s => {
+        text += "- " + s + "\n";
+      });
+      text += "\n";
+    }
+    if (startTid) {
+      text += "I tjänst från: " + startTid.toLocaleTimeString() + "\n";
+    }
+    if (slutTid) {
+      text += "Ur tjänst från: " + slutTid.toLocaleTimeString() + "\n";
+    }
+    summaryBox.value = text.trim();
+  }
+
+  // Kopiera sammanfattning
+  document.getElementById("copySummary").addEventListener("click", () => {
+    summaryBox.select();
+    document.execCommand('copy');
+    alert("Sammanfattning kopierad!");
+  });
+
+  // Avsluta knapp (stänger fliken)
+  document.getElementById("exitApp").addEventListener("click", () => {
+    window.close();
+  });
+
+  // Init
+  createPartButtons();
+  updateSelectedList();
+  räknaPris();
+  updateSFButtons();
+  updateSummary();
+</script>
+
+</body>
+</html>
