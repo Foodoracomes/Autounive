@@ -1,264 +1,369 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Autoexperten - Kombinerad version</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 20px;
-      margin: 20px;
-      background: #f9f9f9;
-      color: #222;
-    }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-    }
-    #priceCustomer, #priceOriginal, #pricePurchase {
-      margin: 5px 0;
-      font-weight: bold;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 15px;
-    }
-    input[type="number"] {
-      font-size: 1.5em;
-      padding: 5px;
-      width: 120px;
-      margin-top: 5px;
-    }
-    button {
-      font-size: 1.3em;
-      padding: 10px 20px;
-      margin: 10px 10px 10px 0;
-      cursor: pointer;
-    }
-    button.selected {
-      background-color: #4caf50;
-      color: white;
-    }
-    #timingSection {
-      margin-top: 20px;
-    }
-    #sfButtons button {
-      margin-right: 10px;
-    }
-    #summaryContainer {
-      margin-top: 20px;
-    }
-    #summaryBox {
-      width: 100%;
-      height: 100px;
-      font-size: 1.3em;
-      padding: 10px;
-    }
-    .delarContainer {
-      margin-top: 20px;
-    }
-    .delButton {
-      font-size: 1.1em;
-      margin: 5px;
-      padding: 10px;
-    }
-    .delButton.selected {
-      background-color: #2196f3;
-      color: white;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Räkneprogram - Elmers Båt</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f5f5f5;
+  }
+  h1 {
+    margin-bottom: 10px;
+  }
+  .top-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  .top-row div {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    box-shadow: 0 0 5px #ccc;
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+  }
+  .parts-container {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 0 5px #ccc;
+  }
+  .parts-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .part-button {
+    background: #007acc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 12px;
+    cursor: pointer;
+    flex: 1 0 120px;
+    max-width: 200px;
+    text-align: center;
+    user-select: none;
+    transition: background-color 0.3s;
+  }
+  .part-button:hover {
+    background: #005fa3;
+  }
+  .part-button.selected {
+    background: #00aa44;
+  }
+  .selected-list {
+    background: #eee;
+    padding: 10px;
+    border-radius: 6px;
+    min-height: 60px;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+  }
+  .buttons-row {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  button.action-btn {
+    background: #004d99;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-weight: bold;
+    user-select: none;
+    flex: 1 0 140px;
+    max-width: 200px;
+    transition: background-color 0.3s;
+  }
+  button.action-btn:hover {
+    background: #003366;
+  }
+  #summary-section {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 0 5px #ccc;
+  }
+  #summary-section textarea {
+    width: 100%;
+    height: 180px;
+    resize: vertical;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  #summary-section button {
+    background: #cc3300;
+    margin-top: 10px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #summary-section button:hover {
+    background: #992200;
+  }
+  .service-info {
+    margin-bottom: 10px;
+  }
+</style>
 </head>
 <body>
 
-<h1>Autoexperten</h1>
+<h1>Räkneprogram - Elmers Båt</h1>
 
-<div id="prices">
-  <div id="priceCustomer">Pris till kund: 0 kr</div>
-  <div id="priceOriginal">Orginal pris: 0 kr</div>
-  <div id="pricePurchase">Inköp pris: 0 kr</div>
+<div class="top-row">
+  <div id="totalPrice">Pris till kund: 0 kr</div>
+  <div id="originalPrice">Original pris: 0 kr</div>
+  <div id="purchasePrice">Inköp pris: 0 kr</div>
 </div>
 
-<label for="discountInput">Total rabatt (%):</label>
-<input type="number" id="discountInput" min="0" max="100" value="0" />
-<div style="margin-top:5px; font-style: italic; color: #555;">Följ Denna mal till 100%</div>
+<div class="parts-container">
+  <h2>Övriga delar</h2>
+  <div class="parts-buttons" id="partsButtons">
+    <!-- Knapp för varje del genereras av JS -->
+  </div>
 
-<!-- Delar-knappar -->
-<div class="delarContainer">
-  <h2>Delar</h2>
-  <div id="delarButtons"></div>
+  <div class="selected-list" id="selectedList">Inga delar valda.</div>
+
+  <div class="buttons-row">
+    <button class="action-btn" id="doOrder">Gör order</button>
+    <button class="action-btn" id="clearOrder">Rensa order</button>
+  </div>
+
+  <div class="buttons-row">
+    <button class="action-btn" id="btnInService">I tjänst</button>
+    <button class="action-btn" id="btnOutService">Ur tjänst</button>
+  </div>
+
+  <div class="service-info" id="labelInService">I tjänst: -</div>
+  <div class="service-info" id="labelOutService">Ur tjänst: -</div>
+  <div class="service-info" id="labelDuration">Tid: -</div>
+
+  <div class="buttons-row" id="sfButtonsRow">
+    <button class="action-btn sf-btn">Trimmat</button>
+    <button class="action-btn sf-btn">Tagit intervju</button>
+    <button class="action-btn sf-btn">Fyllt på hyllor</button>
+  </div>
 </div>
 
-<div id="timingSection">
-  <button id="btnInService">I tjänst</button>
-  <button id="btnOutService">Ur tjänst</button>
-  <div id="labelInService">I tjänst: -</div>
-  <div id="labelOutService">Ur tjänst: -</div>
-  <div id="labelDuration">Tid (Avrunda till minuter och timmar): -</div>
-</div>
-
-<div id="sfSection" style="margin-top: 20px;">
-  <div><strong>SF:</strong></div>
-  <div id="sfButtons"></div>
-</div>
-
-<div id="summaryContainer">
-  <textarea id="summaryBox" readonly placeholder="Sammanfattning visas här..."></textarea><br/>
-  <button id="copySummary">Kopiera sammanfattning</button>
+<div id="summary-section">
+  <h2>Sammanfattning</h2>
+  <textarea id="summaryBox" readonly></textarea>
 </div>
 
 <script>
-  const delar = {
-    "Trimkit A": [5000, 3000, "Trimkit"],
-    "Motor B": [15000, 10000, "Motorer"],
-    "Filter": [700, 400, "Övrigt"],
-    "Olja": [400, 200, "Övrigt"],
-    "Kylare C": [2000, 1200, "Kylning"]
-  };
+  // Data för delar (exempel)
+  const delar = [
+    { namn: "Del A", pris: 150, inkop: 80 },
+    { namn: "Del B", pris: 200, inkop: 120 },
+    { namn: "Del C", pris: 350, inkop: 220 },
+    { namn: "Del D", pris: 90, inkop: 50 },
+    { namn: "Del E", pris: 500, inkop: 300 }
+  ];
 
-  let valdaDelar = [];
-  let sfVal = [];
-  let startTid = null;
-  let slutTid = null;
+  const partsButtonsDiv = document.getElementById("partsButtons");
+  const selectedList = document.getElementById("selectedList");
+  const totalPriceEl = document.getElementById("totalPrice");
+  const originalPriceEl = document.getElementById("originalPrice");
+  const purchasePriceEl = document.getElementById("purchasePrice");
 
-  // Skapa knappar för delar
-  const delarContainer = document.getElementById("delarButtons");
-  Object.entries(delar).forEach(([namn, [pris, inkop, kategori]]) => {
-    const btn = document.createElement("button");
-    btn.className = "delButton";
-    btn.textContent = `${namn} - ${pris} kr / Inköp: ${inkop} kr`;
-    btn.onclick = () => {
-      const index = valdaDelar.indexOf(namn);
-      if (index > -1) {
-        valdaDelar.splice(index, 1);
-        btn.classList.remove("selected");
-      } else {
-        valdaDelar.push(namn);
-        btn.classList.add("selected");
-      }
-      updatePrices();
-      updateSummary();
-    };
-    delarContainer.appendChild(btn);
-  });
+  const summaryBox = document.getElementById("summaryBox");
 
-  // SF-knappar
-  const sfTexts = ["Trimmat", "Tagit intervju", "Fyllt på hyllor"];
-  const sfButtonsContainer = document.getElementById("sfButtons");
-  sfTexts.forEach(txt => {
-    const btn = document.createElement("button");
-    btn.textContent = txt;
-    btn.onclick = () => {
-      if (sfVal.includes(txt)) {
-        sfVal = sfVal.filter(x => x !== txt);
-        btn.classList.remove("selected");
-      } else {
-        sfVal.push(txt);
-        btn.classList.add("selected");
-      }
-      updateSummary();
-    };
-    sfButtonsContainer.appendChild(btn);
-  });
-
-  function updatePrices() {
-    const prisTillKundEl = document.getElementById("priceCustomer");
-    const prisOriginalEl = document.getElementById("priceOriginal");
-    const prisInkopEl = document.getElementById("pricePurchase");
-    const rabattInput = document.getElementById("discountInput");
-
-    let totalPris = 0;
-    let totalInkop = 0;
-    let originalPris = 0;
-
-    valdaDelar.forEach(del => {
-      let [pris, inkop] = delar[del];
-      totalPris += pris;
-      totalInkop += inkop;
-      originalPris += pris;
-    });
-
-    let rabattProcent = parseFloat(rabattInput.value);
-    if (isNaN(rabattProcent)) rabattProcent = 0;
-    if (rabattProcent > 100) rabattProcent = 100;
-
-    let prisEfterRabatt = totalPris * (1 - rabattProcent / 100);
-
-    prisTillKundEl.textContent = `Pris till kund: ${prisEfterRabatt.toFixed(0)} kr`;
-    prisOriginalEl.textContent = `Orginal pris: ${originalPris.toFixed(0)} kr`;
-    prisInkopEl.textContent = `Inköp pris: ${totalInkop.toFixed(0)} kr`;
-  }
-
-  document.getElementById("discountInput").addEventListener("input", () => {
-    updatePrices();
-    updateSummary();
-  });
-
-  // Tidshantering
   const labelInService = document.getElementById("labelInService");
   const labelOutService = document.getElementById("labelOutService");
   const labelDuration = document.getElementById("labelDuration");
 
+  let valdaDelar = [];
+  let antalOrdrar = 0;
+  let startTid = null;
+  let slutTid = null;
+  let sfVal = [];
+
+  // Skapa knappar för delar
+  delar.forEach((del, idx) => {
+    const btn = document.createElement("button");
+    btn.classList.add("part-button");
+    btn.textContent = `${del.namn} (${del.pris} kr)`;
+    btn.dataset.index = idx;
+    btn.addEventListener("click", () => {
+      if (valdaDelar.includes(idx)) {
+        // Avmarkera
+        valdaDelar = valdaDelar.filter(i => i !== idx);
+        btn.classList.remove("selected");
+        btn.textContent = btn.textContent.replace("✅ ", "");
+      } else {
+        // Markera
+        valdaDelar.push(idx);
+        btn.classList.add("selected");
+        btn.textContent = "✅ " + btn.textContent;
+      }
+      updateSelectedList();
+      räknaPris();
+    });
+    partsButtonsDiv.appendChild(btn);
+  });
+
+  // Uppdatera vald lista
+  function updateSelectedList() {
+    if (valdaDelar.length === 0) {
+      selectedList.textContent = "Inga delar valda.";
+    } else {
+      selectedList.textContent = valdaDelar.map(i => delar[i].namn).join(", ");
+    }
+  }
+
+  // Räkna pris
+  function räknaPris() {
+    let total = 0;
+    let original = 0;
+    let inkop = 0;
+    valdaDelar.forEach(i => {
+      total += delar[i].pris;
+      original += delar[i].pris;
+      inkop += delar[i].inkop;
+    });
+    // Här kan du lägga till rabatter etc om vill
+    totalPriceEl.textContent = "Pris till kund: " + total + " kr";
+    originalPriceEl.textContent = "Original pris: " + original + " kr";
+    purchasePriceEl.textContent = "Inköp pris: " + inkop + " kr";
+  }
+
+  // Knappar gör order och rensa order
+  document.getElementById("doOrder").addEventListener("click", () => {
+    antalOrdrar++;
+    alert("Order gjord! Totalt antal ordrar: " + antalOrdrar);
+    // Rensa ordern (ändring 1)
+    valdaDelar = [];
+    updateSelectedList();
+    räknaPris();
+    // Avmarkera knappar
+    document.querySelectorAll(".part-button").forEach(b => {
+      b.classList.remove("selected");
+      b.textContent = b.textContent.replace("✅ ", "");
+    });
+  });
+
+  document.getElementById("clearOrder").addEventListener("click", () => {
+    valdaDelar = [];
+    updateSelectedList();
+    räknaPris();
+    document.querySelectorAll(".part-button").forEach(b => {
+      b.classList.remove("selected");
+      b.textContent = b.textContent.replace("✅ ", "");
+    });
+  });
+
+  // I tjänst, Ur tjänst
   document.getElementById("btnInService").addEventListener("click", () => {
     startTid = new Date();
-    slutTid = null;
-    labelInService.textContent = "I tjänst: " + formatDateTime(startTid);
-    labelOutService.textContent = "Ur tjänst: -";
-    labelDuration.textContent = "Tid (Avrunda till minuter och timmar): -";
+    labelInService.textContent = "I tjänst: " + startTid.toLocaleTimeString();
     updateSummary();
   });
 
   document.getElementById("btnOutService").addEventListener("click", () => {
     if (!startTid) {
-      alert("Tryck på 'I tjänst' först.");
+      alert("Du måste trycka 'I tjänst' först.");
       return;
     }
     slutTid = new Date();
-    labelOutService.textContent = "Ur tjänst: " + formatDateTime(slutTid);
-    updateDuration();
+    labelOutService.textContent = "Ur tjänst: " + slutTid.toLocaleTimeString();
+
+    // Visa tid skillnad
+    const diffMs = slutTid - startTid;
+    const diffMin = Math.floor(diffMs / 60000);
+    const h = Math.floor(diffMin / 60);
+    const m = diffMin % 60;
+    labelDuration.textContent = `Tid: ${h}h ${m}m`;
+
     updateSummary();
   });
 
-  function formatDateTime(dt) {
-    return dt.toLocaleTimeString("sv-SE", { hour12: false });
+  // SF-knappar
+  function updateSFButtons() {
+    document.querySelectorAll(".sf-btn").forEach(btn => {
+      if (sfVal.includes(btn.textContent)) {
+        btn.classList.add("selected");
+      } else {
+        btn.classList.remove("selected");
+      }
+    });
   }
 
-  function updateDuration() {
-    if (startTid && slutTid) {
-      let diffMs = slutTid - startTid;
-      let diffMin = Math.round(diffMs / 60000);
-      let timmar = Math.floor(diffMin / 60);
-      let minuter = diffMin % 60;
-      labelDuration.textContent = `Tid (Avrunda till minuter och timmar): ${timmar} tim ${minuter} min`;
-    }
-  }
-
-  function updateSummary() {
-    const summary = document.getElementById("summaryBox");
-    let partsText = valdaDelar.length > 0 ? "Delar: " + valdaDelar.join(", ") : "Inga delar valda.";
-    let sfText = sfVal.length > 0 ? "SF: " + sfVal.join(", ") : "Ingen SF vald.";
-    let tidText = "-";
-    if (startTid && slutTid) {
-      let diffMs = slutTid - startTid;
-      let diffMin = Math.round(diffMs / 60000);
-      let timmar = Math.floor(diffMin / 60);
-      let minuter = diffMin % 60;
-      tidText = `${timmar} tim ${minuter} min`;
-    }
-    summary.value = `${partsText}\n${sfText}\nTid: ${tidText}`;
-  }
-
-  document.getElementById("copySummary").addEventListener("click", () => {
-    const text = document.getElementById("summaryBox").value;
-    navigator.clipboard.writeText(text).then(() => {
-      alert("Sammanfattning kopierad till urklipp!");
+  document.querySelectorAll(".sf-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const val = btn.textContent;
+      if (sfVal.includes(val)) {
+        sfVal = sfVal.filter(s => s !== val);
+      } else {
+        sfVal.push(val);
+      }
+      updateSFButtons();
+      updateSummary();
     });
   });
 
+  // Uppdaterad summaryfunktion (ändring 2)
+  function updateSummary() {
+    let text = "";
+
+    text += "I tjänst: " + (startTid ? startTid.toLocaleTimeString() : "") + "\n";
+    text += "Ur tjänst: " + (slutTid ? slutTid.toLocaleTimeString() : "") + "\n";
+
+    if (startTid && slutTid) {
+      const diffMs = slutTid - startTid;
+      const diffMin = Math.floor(diffMs / 60000);
+      const h = Math.floor(diffMin / 60);
+      const m = diffMin % 60;
+      text += `Tid: ${h}h ${m}m\n`;
+    } else {
+      text += "Tid: \n";
+    }
+
+    text += "SF:\n";
+    if (sfVal.length > 0) {
+      sfVal.forEach(s => {
+        text += "- " + s + "\n";
+      });
+    }
+
+    summaryBox.value = text.trim();
+  }
+
+  // Knapp för att rensa sammanfattning (ändring 3)
+  const btnClearSummary = document.createElement("button");
+  btnClearSummary.textContent = "Rensa sammanfattningen";
+  btnClearSummary.style.marginTop = "10px";
+  btnClearSummary.onclick = () => {
+    sfVal = [];
+    startTid = null;
+    slutTid = null;
+    labelInService.textContent = "I tjänst: -";
+    labelOutService.textContent = "Ur tjänst: -";
+    labelDuration.textContent = "Tid: -";
+    updateSFButtons();
+    updateSummary();
+  };
+  document.getElementById("summary-section").appendChild(btnClearSummary);
+
   // Init
-  updatePrices();
+  updateSelectedList();
+  räknaPris();
   updateSummary();
+  updateSFButtons();
 </script>
 
 </body>
