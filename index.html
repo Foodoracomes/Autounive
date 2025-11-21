@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f3f3f3;
+            background: linear-gradient(135deg,#e8efff,#ffffff);
             margin: 0;
             padding: 0;
             display: flex;
@@ -15,58 +15,75 @@
         }
         .container {
             width: 95%;
-            max-width: 600px;
+            max-width: 650px;
             background: #fff;
-            padding: 20px;
-            margin-top: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-top: 40px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
         }
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            font-size: 2rem;
         }
-        #itemInput {
-            width: calc(100% - 90px);
-            padding: 10px;
-            border-radius: 8px;
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        input, button {
+            border-radius: 10px;
+        }
+        #itemInput, #linkInput {
+            flex: 1;
+            padding: 12px;
             border: 1px solid #ccc;
         }
         #addBtn {
-            padding: 10px 15px;
+            padding: 12px 18px;
             border: none;
-            background: #4CAF50;
+            background: #4a7dfc;
             color: white;
-            border-radius: 8px;
             cursor: pointer;
+            font-weight: bold;
         }
         #addBtn:hover {
-            background: #449d48;
+            background: #3c68d6;
         }
         ul {
             list-style: none;
             padding: 0;
-            margin-top: 20px;
+            margin-top: 25px;
         }
         li {
-            background: #e9e9e9;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 8px;
+            background: #f1f4ff;
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-left: 5px solid #4a7dfc;
+        }
+        li .info {
+            display: flex;
+            flex-direction: column;
+        }
+        li a {
+            color: #4a7dfc;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        li a:hover {
+            text-decoration: underline;
         }
         .removeBtn {
-            background: #d9534f;
+            background: #ff4d4d;
             border: none;
             color: #fff;
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
-        }
-        .removeBtn:hover {
-            background: #c9302c;
         }
     </style>
 </head>
@@ -74,8 +91,9 @@
     <div class="container">
         <h1>Önskelista</h1>
 
-        <div>
-            <input type="text" id="itemInput" placeholder="Lägg till en önskning...">
+        <div class="input-row">
+            <input type="text" id="itemInput" placeholder="Önskning...">
+            <input type="text" id="linkInput" placeholder="Länk (valfritt)">
             <button id="addBtn">Lägg till</button>
         </div>
 
@@ -84,30 +102,63 @@
 
     <script>
         const input = document.getElementById('itemInput');
+        const linkInput = document.getElementById('linkInput');
         const addBtn = document.getElementById('addBtn');
         const list = document.getElementById('wishlist');
 
-        function addItem() {
-            const text = input.value.trim();
-            if (text === "") return;
+        function saveList() {
+            const items = [];
+            list.querySelectorAll('li').forEach(li => {
+                items.push({
+                    text: li.dataset.text,
+                    link: li.dataset.link
+                });
+            });
+            localStorage.setItem('wishlist', JSON.stringify(items));
+        }
 
+        function loadList() {
+            const data = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            data.forEach(item => createItem(item.text, item.link));
+        }
+
+        function createItem(text, link) {
             const li = document.createElement('li');
-            li.textContent = text;
+            li.dataset.text = text;
+            li.dataset.link = link || '';
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'info';
+            infoDiv.innerHTML = `<span>${text}</span>` + (link ? `<a href="${link}" target="_blank">Öppna länk</a>` : "");
 
             const removeBtn = document.createElement('button');
             removeBtn.textContent = "Ta bort";
             removeBtn.className = "removeBtn";
-            removeBtn.onclick = () => li.remove();
+            removeBtn.onclick = () => {
+                li.remove();
+                saveList();
+            };
 
+            li.appendChild(infoDiv);
             li.appendChild(removeBtn);
             list.appendChild(li);
+            saveList();
+        }
+
+        function addItem() {
+            const text = input.value.trim();
+            const link = linkInput.value.trim();
+            if (text === "") return;
+            createItem(text, link);
             input.value = "";
+            linkInput.value = "";
         }
 
         addBtn.addEventListener('click', addItem);
-        input.addEventListener('keypress', function(e) {
-            if (e.key === "Enter") addItem();
-        });
+        input.addEventListener('keypress', e => { if (e.key === "Enter") addItem(); });
+        linkInput.addEventListener('keypress', e => { if (e.key === "Enter") addItem(); });
+
+        loadList();
     </script>
 </body>
 </html>
